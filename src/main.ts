@@ -3,6 +3,8 @@ import { ProductCatalog } from './models/ProductCatalog.ts';
 import { Basket } from './models/Basket.ts';
 import { Buyer } from './models/Buyer.ts';
 import { apiProducts } from './utils/data';
+import {WebLarekAPI} from "./models/WebLarekAPI.ts";
+import {API_URL, CDN_URL} from "./utils/constants.ts";
 
 // ===== ТЕСТИРОВАНИЕ КЛАССА ProductCatalog =====
 console.log('=== ТЕСТИРОВАНИЕ ProductCatalog ===');
@@ -174,5 +176,29 @@ if (finalValidation.isValid) {
 } else {
     console.log('Заказ не может быть оформлен из-за ошибок валидации');
 }
+
+
+// ===== ПРОВЕРКА РАБОТЫ С СЕРВЕРОМ (API) =====
+console.log('\n\n=== ПРОВЕРКА РАБОТЫ С API ===');
+
+// 1. Создаем экземпляр класса для работы с API
+const api = new WebLarekAPI(CDN_URL, API_URL);
+
+// 2. Выполняем запрос на сервер для получения каталога товаров
+console.log('Запрашиваем каталог товаров с сервера...');
+api.getProductList()
+    .then((products) => {
+        // 3. В обработчике запроса сохраняем полученный массив в модель данных
+        catalog.setItems(products);
+        console.log('Данные успешно получены и сохранены в модель каталога.');
+
+        // 4. Выводим только что сохранённый каталог в консоль для проверки
+        console.log('Содержимое каталога после загрузки с сервера:');
+        console.log(catalog.getItems());
+    })
+    .catch((err) => {
+        // Обработка возможной ошибки при запросе
+        console.error('Ошибка при загрузке каталога с сервера:', err);
+    });
 
 console.log('\n=== ТЕСТИРОВАНИЕ ЗАВЕРШЕНО ===');
